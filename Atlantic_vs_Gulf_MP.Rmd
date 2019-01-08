@@ -1,0 +1,72 @@
+---
+title: "Bnose_littersizeTest"
+output: 
+  html_notebook: 
+    highlight: kate
+    theme: flatly
+    toc: yes
+---
+
+Load libraries
+
+```{r Load libraries}
+library(ggplot2)
+library(reshape2)
+library(tidyr)
+library(dplyr)
+```
+
+
+# Atlantic vs Keys Simulation
+
+Simulation to account for uneven sample size between keys and atlantic-- test to see if observed differences in rate of MP are due to chance alone 
+
+```{r Keys vs Atlantic paternity }
+prob_MP1<-0.63 #Chance of multiple paternity 
+prob_MP2 <- 0.74
+
+how_many_multiple_fathers<-function(prob_MP1){
+  litters<-sample(c('MP','SP'),8,replace=T,prob=c(prob_MP1,(1-prob_MP1)))
+  sum(litters=='MP')
+}
+
+
+sim_MP1<-replicate(100000,how_many_multiple_fathers(prob_MP1))
+sum(sim_MP1==8)/100000
+
+how_many_multiple_fathers<-function(prob_MP2){
+  litters<-sample(c('MP','SP'),8,replace=T,prob=c(prob_MP2,(1-prob_MP2)))
+  sum(litters=='MP')
+}
+
+
+sim_MP2<-replicate(100000,how_many_multiple_fathers(prob_MP2))
+sum(sim_MP2==8)/100000
+```
+
+## Barnarnd's Test
+
+Run Barnard's test for differences in rate of MP between Atlantic and Gulf  
+
+Install/load packages
+
+```{r}
+#install.packages("Barnard")
+library(Barnard)
+```
+
+Perform test
+
+```{r }
+# Barnard's test based on results from allele counting method 
+
+AC_test_pooled <- barnard.test(14,8,5,0, dp = 0.001, pooled = TRUE) 
+
+# Barnard's test based on results from Colony
+
+C_test_pooled <- barnard.test(12,8,7,0, dp = 0.001, pooled = TRUE)
+```
+
+Use pooled results, two-sided. 
+
+```
